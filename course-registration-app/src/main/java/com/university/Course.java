@@ -1,7 +1,6 @@
 package com.university;
 
 public class Course {
-
     private final String courseCode;
     private final String courseName;
     private final int credits;
@@ -10,14 +9,7 @@ public class Course {
     private final boolean active;
     private final String prerequisite;
 
-    public Course(
-            String courseCode,
-            String courseName,
-            int credits,
-            int capacity,
-            boolean active,
-            String prerequisite) {
-
+    public Course(String courseCode, String courseName, int credits, int capacity, boolean active, String prerequisite) {
         this.courseCode = courseCode;
         this.courseName = courseName;
         this.credits = credits;
@@ -56,6 +48,14 @@ public class Course {
     }
 
     public void incrementEnrollment() {
-        currentEnrollment++;
+        if (currentEnrollment < capacity) {
+            currentEnrollment++;
+        }
+    }
+
+    public void decrementEnrollment() {
+        if (currentEnrollment > 0) {
+            currentEnrollment--;
+        }
     }
 }
