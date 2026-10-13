@@ -101,6 +101,7 @@ nginx-service   NodePort    10.96.39.119   <none>        80:30080/TCP   13s
 I scaled the deployment from 2 to 3 replicas with `kubectl scale deployment nginx-deployment --replicas=3`, and a third Pod (`kxdbf`) started within seconds. Then I deleted pod `nginx-deployment-75cc477c85-wjzpk`. The Deployment's ReplicaSet detected that the actual count had dropped below the desired 3 and immediately created a replacement, `jfft2`, restoring 3 running Pods without any manual action.
 
 ![Services, scaling and Pod self-healing](images/kubectl_scale_selfheal.png)
+![Dashboard](images/jenkins%20dashboard.png)
 
 ## 6. Change Summary and Limitations
 
