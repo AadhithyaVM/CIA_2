@@ -1,16 +1,20 @@
 pipeline {
-    agent any // Or specify Windows/Linux agent labels if required
+    agent any
 
     stages {
-        stage('Clean & Test') {
+        stage('Checkout') {
             steps {
-                // Execute Maven from the repository root[cite: 5]
-                sh 'mvn clean test'
+                Checkout scm
             }
         }
-        stage('Package') {
+        stage('Build') {
             steps {
-                sh 'mvn package -DskipTests=false'
+                sh 'mvn clean compile'
+            }
+        }
+        stage('test'){
+            steps{
+                sh'mvn test'
             }
         }
     }
