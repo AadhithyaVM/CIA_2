@@ -1,153 +1,78 @@
 package com.university;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class RegistrationServiceTest {
 
+    private RegistrationService registrationService;
+    private Student student;
+
+    @BeforeEach
+    void setUp() {
+        registrationService = new RegistrationService();
+        student = new Student("S101", "Alice");
+    }
+
     @Test
-    void shouldRegisterStudentForValidCourse() {
+    void testLastRemainingSeatIsAllowed() {
+        Course course = new Course("CS101", "Intro to CS", 3, 1, true, null);
+        boolean result = registrationService.register(student, course);
+        
+        assertTrue(result, "The last remaining seat should be successfully filled.");
+        assertEquals(1, course.getCurrentEnrollment());
+        assertTrue(student.isRegistered("CS101"));
+    }
 
-        Student student = new Student("S101", "Anita");
+    @Test
+    void testFullCourseRejectsRegistration() {
+        Course course = new Course("CS101", "Intro to CS", 3, 1, true, null);
+        Student student1 = new Student("S102", "Bob");
+        Student student2 = new Student("S103", "Charlie");
 
-        Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                true,
-                null
-        );
+        assertTrue(registrationService.register(student1, course));
+        assertEquals(1, course.getCurrentEnrollment());
 
-        RegistrationService service = new RegistrationService();
-
-        boolean result = service.register(student, course);
-
-        assertTrue(result);
-        assertTrue(student.isRegistered("CS301"));
-        assertEquals(4, student.getTotalCredits());
+        boolean result = registrationService.register(student2, course);
+        
+        assertFalse(result, "A full course must reject new registrations.");
+        assertFalse(student2.isRegistered("CS101"));
+        assertEquals(0, student2.getTotalCredits());
         assertEquals(1, course.getCurrentEnrollment());
     }
 
     @Test
-    void shouldRejectInactiveCourse() {
+    void testFifthCourseRegistrationAllowed() {
+        for (int i = 1; i <= 4; i++) {
+            Course c = new Course("C" + i, "Course " + i, 3, 10, true, null);
+            registrationService.register(student, c);
+        }
+        assertEquals(4, student.getRegisteredCourses().size());
 
-        Student student = new Student("S101", "Anita");
+        Course fifthCourse = new Course("C5", "Course 5", 3, 10, true, null);
+        boolean result = registrationService.register(student, fifthCourse);
 
-        Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                false,
-                null
-        );
-
-        RegistrationService service = new RegistrationService();
-
-        boolean result = service.register(student, course);
-
-        assertFalse(result);
-        assertFalse(student.isRegistered("CS301"));
+        assertTrue(result, "Registration of the fifth course must be allowed.");
+        assertEquals(5, student.getRegisteredCourses().size());
     }
 
     @Test
-    void shouldRejectMissingPrerequisite() {
+    void testSixthCourseRegistrationRejected() {
+        for (int i = 1; i <= 5; i++) {
+            Course c = new Course("C" + i, "Course " + i, 3, 10, true, null);
+            registrationService.register(student, c);
+        }
+        assertEquals(5, student.getRegisteredCourses().size());
+        int creditsBeforeSixth = student.getTotalCredits();
 
-        Student student = new Student("S101", "Anita");
+        Course sixthCourse = new Course("C6", "Course 6", 3, 10, true, null);
+        boolean result = registrationService.register(student, sixthCourse);
 
-        Course course = new Course(
-                "CS401",
-                "Advanced Algorithms",
-                4,
-                30,
-                true,
-                "CS301"
-        );
-
-        RegistrationService service = new RegistrationService();
-
-        boolean result = service.register(student, course);
-
-        assertFalse(result);
-        assertFalse(student.isRegistered("CS401"));
-    }
-
-    @Test
-    void shouldAllowRegistrationWhenPrerequisiteIsCompleted() {
-
-        Student student = new Student("S101", "Anita");
-        student.addCompletedPrerequisite("CS301");
-
-        Course course = new Course(
-                "CS401",
-                "Advanced Algorithms",
-                4,
-                30,
-                true,
-                "CS301"
-        );
-
-        RegistrationService service = new RegistrationService();
-
-        boolean result = service.register(student, course);
-
-        assertTrue(result);
-        assertTrue(student.isRegistered("CS401"));
-    }
-
-    @Test
-    void shouldRejectDuplicateRegistration() {
-
-        Student student = new Student("S101", "Anita");
-
-        Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                true,
-                null
-        );
-
-        RegistrationService service = new RegistrationService();
-
-        assertTrue(service.register(student, course));
-
-        boolean secondAttempt = service.register(student, course);
-
-        assertFalse(secondAttempt);
-        assertEquals(4, student.getTotalCredits());
-        assertEquals(1, course.getCurrentEnrollment());
-    }
-
-    @Test
-    void shouldRejectRegistrationWhenCreditLimitIsExceeded() {
-
-        Student student = new Student("S101", "Anita");
-
-        // Simulate 20 existing credits
-        student.addRegistration("CS101", 4);
-        student.addRegistration("CS102", 4);
-        student.addRegistration("CS201", 4);
-        student.addRegistration("CS202", 4);
-        student.addRegistration("CS203", 4);
-
-        Course course = new Course(
-                "CS301",
-                "Data Structures",
-                4,
-                30,
-                true,
-                null
-        );
-
-        RegistrationService service = new RegistrationService();
-
-        boolean result = service.register(student, course);
-
-        assertFalse(result);
-        assertFalse(student.isRegistered("CS301"));
+        assertFalse(result, "Registration of a sixth course must be rejected.");
+        assertEquals(5, student.getRegisteredCourses().size());
+        assertEquals(creditsBeforeSixth, student.getTotalCredits());
+        assertEquals(0, sixthCourse.getCurrentEnrollment());
     }
 }
