@@ -30,6 +30,6 @@ post
 { junit testResults: '/target/surefire-reports/TEST-*.xml', allowEmptyResults: true }
 
 success 
-{ archiveArtifacts artifacts: '/target/*.jar', fingerprint: true } 
+{ echo 'BUild and Tests completed successfully' } 
 } 
 }
