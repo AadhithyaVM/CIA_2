@@ -1,37 +1,37 @@
-pipeline 
-{ 
+pipeline {
     agent any
- tools {
-        maven 'Maven310'
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Tools') {
+            steps {
+                bat 'java -version'
+                bat '"C:\\Maven\\apache-maven-3.10.0\\bin\\mvn.cmd" -version'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat '"C:\\Maven\\apache-maven-3.10.0\\bin\\mvn.cmd" clean package'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat '"C:\\Maven\\apache-maven-3.10.0\\bin\\mvn.cmd" test'
+            }
+        }
     }
 
-stages 
-{ 
-    stage('Checkout') 
-    { steps 
-    { checkout scm 
-    } 
+    post {
+        always {
+            junit allowEmptyResults: true,
+                  testResults: '**/target/surefire-reports/*.xml'
+        }
     }
-
-stage('Build') 
-{ steps 
-{ 
-    bat 'mvn clean package' 
-    } 
-    }
-
-stage('Test') 
-{ steps 
-{ bat 'mvn test' 
-} 
-} 
-}
-
-post 
-{ always 
-{ junit testResults: '/target/surefire-reports/TEST-*.xml', allowEmptyResults: true }
-
-success 
-{ echo 'BUild and Tests completed successfully' } 
-} 
 }
