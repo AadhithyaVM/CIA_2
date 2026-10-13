@@ -8,12 +8,7 @@ pipeline {
             }
         }
 
-        stage('Verify Tools') {
-            steps {
-                bat 'java -version'
-                bat '"C:\\Maven\\apache-maven-3.10.0\\bin\\mvn.cmd" -version'
-            }
-        }
+    
 
         stage('Build') {
             steps {
